@@ -1,4 +1,10 @@
-int   p (int semidgroup, int donut_type)
+/**********************************************************/
+/***  a utility  .c  file should include the following  ***/
+/***                     semaphore untilities:          ***/
+
+#include <sys/sem.h>
+
+int   p(int semidgroup, int donut_type)
 {
 	struct sembuf semopbuf;  /*** struct in <sys/sem.h> ***/
 
@@ -10,9 +16,9 @@ int   p (int semidgroup, int donut_type)
 
 int semop (int semid, struct sembuf *sops, int nsops);
 struct sembuf {
-	short	sem_num;	/* semaphore index 
-	short	sem_op;		/* semaphore operation 
-	short	sem_flg;	/* operation flags 
+	short	sem_num;	/* semaphore index
+	short	sem_op;		/* semaphore operation
+	short	sem_flg;	/* operation flags
 };
 
 ************* end syscall semop comment ******/
@@ -26,7 +32,7 @@ struct sembuf {
 	}
 	return (0);
 }
-	
+
 
 int   v (int semidgroup, int donut_type)
 {
@@ -44,7 +50,7 @@ int   v (int semidgroup, int donut_type)
 
 
 
-int   semsetall (int semgroup, int number_in_group, 
+int   semsetall (int semgroup, int number_in_group,
 			      int set_all_value)
 {
 	int	i, j, k;
@@ -63,14 +69,14 @@ int   semsetall (int semgroup, int number_in_group,
      int semctl (int semid, int semnum, int cmd, ...);
 
      	The fourth argument is optional and depends on the
-      	operation requested.  If required, it is of the type 
-      	union semun, which the application program 
+      	operation requested.  If required, it is of the type
+      	union semun, which the application program
      	must explicitly declare as follows:
 
-   The user should define a union like the following to use for 
-   command specific values for `semctl' in the fourth argument 
+   The user should define a union like the following to use for
+   command specific values for `semctl' in the fourth argument
    position ... when used this argument is needed, the union
-   is passed by value and the semctl call selects the appropriate 
+   is passed by value and the semctl call selects the appropriate
    member (based on the command argument)
 
    union semun
@@ -80,10 +86,10 @@ int   semsetall (int semgroup, int number_in_group,
      unsigned short int *array;  <= array for GETALL & SETALL
    };
 
-   Previous versions of <sys/sem.h> used to define this union but 
-   this is incorrect.  One can test the macro _SEM_SEMUN_UNDEFINED 
-   to see whether one must define the union or not, but I will 
-   define it myself for this example function (semsetall) 
+   Previous versions of <sys/sem.h> used to define this union but
+   this is incorrect.  One can test the macro _SEM_SEMUN_UNDEFINED
+   to see whether one must define the union or not, but I will
+   define it myself for this example function (semsetall)
 
 ************* end syscall semctl comment ******/
 
