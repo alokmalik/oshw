@@ -112,7 +112,7 @@ int main ( int argc, char *argv[] )
   pthread_attr_setinheritsched ( &thread_attr, PTHREAD_INHERIT_SCHED );
 
 
-  printf("Creating Consumer threads \n");
+  //printf("Creating Consumer threads \n");
   for ( i = 0; i < NUMCONSUMERS ; i++ )
   {
     if ( pthread_create ( &thread_id [i], &thread_attr, consumer, ( void * )&arg_array [i]) != 0 )
@@ -135,9 +135,11 @@ int main ( int argc, char *argv[] )
   printf("Producer threads created \n");
 
   printf("starting all threads ");
-  for ( i = 0; i < NUMCONSUMERS; i++ )
-    printf(" %d",i);
+  //usleep(10000000);
+  for ( i = 0; i < NUMCONSUMERS; i++ ){
     pthread_join ( thread_id [i], NULL );
+    printf(" %d",i);
+  }
   printf("\n");
   gettimeofday(&last_time, (struct timezone *)0);
   if((i=last_time.tv_sec - first_time.tv_sec) == 0)
