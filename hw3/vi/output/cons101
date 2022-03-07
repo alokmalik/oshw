@@ -1,0 +1,100 @@
+consumer ID 101 Node ID 1     dozen number: 1 
+
+
+ProID Jelly		ProID Coconut		ProID Plain		ProID Glazed
+-1	-1		-1	1		-1	4		-1	3
+-1	-1		-1	-1		-1	12		-1	-1
+				-1	-1		-1	5
+						-1	-1
+						-1	9
+								
+consumer ID 101 Node ID 1     dozen number: 2 
+
+
+ProID Jelly		ProID Coconut		ProID Plain		ProID Glazed
+1	7		1	9		1	29		1	-1
+1	8		1	-1				1	17
+1	-1		1	15				1	-1
+		1	16				1	30
+								
+consumer ID 101 Node ID 1     dozen number: 3 
+
+
+ProID Jelly		ProID Coconut		ProID Plain		ProID Glazed
+3	-1		3	19		3	35		3	40
+		3	-1		3	40		3	43
+		3	21		3	42				
+		3	26						
+		3	27						
+		3	33						
+								
+consumer ID 101 Node ID 1     dozen number: 4 
+
+
+ProID Jelly		ProID Coconut		ProID Plain		ProID Glazed
+1	26				1	47		1	44
+1	27				1	49		1	45
+1	28				1	58		1	46
+						1	56
+						1	59
+						1	63
+								
+consumer ID 101 Node ID 1     dozen number: 5 
+
+
+ProID Jelly		ProID Coconut		ProID Plain		ProID Glazed
+4	34		4	54		4	61		4	72
+4	36		4	57		4	70		4	74
+4	41				4	71				
+4	46								
+4	48								
+								
+consumer ID 101 Node ID 1     dozen number: 6 
+
+
+ProID Jelly		ProID Coconut		ProID Plain		ProID Glazed
+1	54		1	63		1	74		1	88
+1	57		1	66		1	78		1	90
+				1	79		1	91
+				1	86				
+				1	87				
+								
+consumer ID 101 Node ID 1     dozen number: 7 
+
+
+ProID Jelly		ProID Coconut		ProID Plain		ProID Glazed
+5	64		5	77		5	95		5	94
+5	66				5	99		5	101
+5	69				5	110		5	102
+5	74				5	112				
+								
+consumer ID 101 Node ID 1     dozen number: 8 
+
+
+ProID Jelly		ProID Coconut		ProID Plain		ProID Glazed
+3	78		3	83		3	121		3	108
+3	79		3	89		3	122		3	112
+3	82		3	93						
+3	84								
+3	85								
+								
+consumer ID 101 Node ID 1     dozen number: 9 
+
+
+ProID Jelly		ProID Coconut		ProID Plain		ProID Glazed
+5	97		5	95		5	138		5	123
+5	100		5	100		5	148		5	-1
+		5	100				5	130
+		5	104				5	133
+								
+consumer ID 101 Node ID 1     dozen number: 10 
+
+
+ProID Jelly		ProID Coconut		ProID Plain		ProID Glazed
+3	106		3	119		3	152		3	145
+3	109		3	123		3	154		3	147
+				3	157				
+				3	162				
+				3	164				
+				3	166				
+								

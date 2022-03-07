@@ -1,0 +1,31 @@
+I did not have much success with the results in this assignment. Results that I got have problems like a consumer is consuming donut more than once for the same type of donut and donut number produced by the same producer. This problem is occuring because my code for node controller does not assures that no more than one child producer or child consumer for the same donut flavour is active at the same time in the buffer manager which leads to the corruption of the ring buffer. I have been unable to apply the mutual exclusion algorithm on node controller in an effective way.
+
+Method which I followed has following steps:
+
+1.	Start a buffer manager as a  process on a particular channel using the socket() function (which returns the minimum available channel number ) and bind itself to the socket. Then in  a infinite while loop it sits and waits for incoming calls on a TCP port through the accept() function. As it accept a call it will create a new child using fork() function and allocate a new process id to child and also a new channel. It then closes this new channel.
+
+2.	Create a fully connected node controller environment. Creating total 4 nodes and each node has a node controller ,4 threads(one to connect with the message queue and other three to connect with the peer node controllers) and a request queue of size 8 . Functions of different node:
+	•	Node1 will accept 3 connections
+	•	Node 2 will accept 2 connections and make one connection
+	•	Node 3 will accept 1 connection and make 2 connection
+	•	Node 4 will make 3 connections
+3.	Every Node Controller maintains a Lamport logical clocks at their respective sites. All the messages that they exchange among one another are always time stamped with the originator’s logical clock value and node ID.
+
+4.	Producers and consumers send the requests to their local peer node controllers through the message queue.
+
+5.	When this node controller wants to enter the CS, it sends a request message with Timestamp and its id to all other nodes and places this request on its own request queue. Then all other nodes send a reply message to this node controller with higher Timestamp and places request on their own request queues. 
+
+6.	Then node controller gives the permission to the producer or consumer to go ahead.(This ensures that no more than one type of producer or consumer is using buffer manager at the same time)
+
+7.	After getting permission producer or consumer goes to buffer manager to do their tasks and after completion sends message to their respective node controllers.
+
+8.	Then this node controller send the release message to its peer node controllers and all of them removes this request from their request queues.
+
+9.	And so on procedure goes on.
+
+So, first node 1 is started ,then node 2 is started, then node3 is started, then node4 is started , then buffer manager is started, then producers are started and then consumers are started. 
+
+This is the procedure that I have tried to implement in the code but have not been able to do it. I could not make the graph because I did not have the appropriate results.
+ 
+Name – Vaishali Mahipal				
+Email Id – vaishali_mahipal@student.uml.edu

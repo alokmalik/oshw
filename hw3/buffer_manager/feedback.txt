@@ -1,0 +1,16 @@
+Language: Python 3
+
+logs = [
+    ["300", "user_1", "resource_3"],
+    ["599", "user_1", "resource_3"],
+    ["900", "user_1", "resource_3"],
+    ["1199", "user_1", "resource_3"],
+    ["1200", "user_1", "resource_3"],
+    ["1201", "user_1", "resource_3"],
+    ["1202", "user_1", "resource_3"]
+]
+
+logs.sort(key=lambda x: int(x[0]))
+
+In above line interviewer told me I was modifying the input to sort the list, which is in fact not happening. I'm just sorting as per the integer value, not modifying the list. He asked me to do it some other way which I did.  The other way took me which took extra time.
+

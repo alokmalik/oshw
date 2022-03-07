@@ -1,0 +1,37 @@
+ 
+	gcc -g -c msg_util.c 
+
+	gcc -g -c utilities.c 
+
+	gcc -g -c net_producer.c 
+ 
+	gcc -g -c net_consumer.c 
+
+	gcc -g -c buf_mgr_server.c 
+	
+	gcc -g -c node_controller.c
+
+
+	gcc -o bm buf_mgr_server.o msg_util.o utilities.o
+ 
+	gcc -o np net_producer.o msg_util.o utilities.o
+
+	gcc -o nc net_consumer.o msg_util.o utilities.o
+	
+	gcc -o ndc node_controller.o msg_util.o -lpthread
+
+	./ndc 1 4 &
+
+	./ndc 2 4 &
+
+	./ndc 3 4 &
+
+	./ndc 4 4 &
+
+	./bm &
+
+	./np cs91515-3 1 1 & ./np cs91515-3 2 1 & ./np cs91515-4 3 2 & ./np cs91515-4 4 2 & ./np cs91515-5 5 3 &
+
+	./nc cs91515-3 100 1 & ./nc cs91515-3 101 1 & ./nc cs91515-4 102 2 & ./nc cs91515-4 103 2 & ./nc cs91515-5 104 3 & ./nc cs91515-3 105 1 & 	./nc cs91515-3 106 1 & ./nc cs91515-4 107 2 & ./nc cs91515-4 108 2 & ./nc cs91515-5 109 2 & ./nc cs91515-3 110 1 & ./nc cs91515-3 111 1 & 		./nc cs91515-4 112 2 & ./nc cs91515-4 113 2 & ./nc cs91515-5 114 3 &
+
+
