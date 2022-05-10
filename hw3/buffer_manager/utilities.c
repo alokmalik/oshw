@@ -4,6 +4,8 @@
 
 #include "ddonuts.h"
 
+
+//decreases semaphore
 int    p(semidgroup, donut_type)
 {
         int semidgroup, donut_type;
@@ -20,6 +22,7 @@ int    p(semidgroup, donut_type)
 	return(0);
 }
 
+//increases semaphore
 int    v(int semidgroup, int donut_type)
 {
         struct sembuf semopbuf;

@@ -9,21 +9,21 @@ void    sig_handler(int);  // clean up shm and sem resources
 
 int main(int argc, char *argv[])
 {
-        MSG     		msg;
+      MSG     		msg;
 	MBUF			raw;
 	DONUT			donut;
-        int    	 		inet_sock, new_sock, out_index;
+      int    	 	inet_sock, new_sock, out_index;
 	int			type_val, id_val, read_val, trigger;
-        int     		i, j, k, fromlen, nsigs, donut_num, node_id;
+      int     		i, j, k, fromlen, nsigs, donut_num, node_id;
 	char    		*buffer_ptr;
-        struct sockaddr_in 	inet_telnum;
+      struct sockaddr_in 	inet_telnum;
 	struct hostent 		*heptr, *gethostbyname();
 	int			wild_card = INADDR_ANY;
 	struct sigaction 	sigstrc;
 	sigset_t		mask;
-        struct donut_ring       *shared_ring;
-        struct timeval          randtime;
-        unsigned short          xsub1[3];
+      struct donut_ring       *shared_ring;
+      struct timeval          randtime;
+      unsigned short          xsub1[3];
 
 // catch fatal signals to remove shm and sem resources
 
@@ -385,20 +385,35 @@ int main(int argc, char *argv[])
    } // buffer manager forever loop
 } // main
 
+//destroys shamred memory and semaphore sets
 void    sig_handler(int sig)
 {
-        int     i,j,k;
+      int     i,j,k;
 
-        printf("In signal handler with signal # %d\n",sig);
+      printf("In signal handler with signal # %d\n",sig);
 
-        if(shmctl(shmid, IPC_RMID,0) == -1){
-                perror("handler failed shm RMID: ");
-        }
-
-        for(i=0; i<NUMSEMIDS; i++){
-          if(semctl(semid[i], 0, IPC_RMID,0) == -1){
+      /*shmctl() performs the control operation specified by cmd(2nd argument) on the
+       System V shared memory segment whose identifier is given in
+       shmid.*/
+      //destroy the memory segment
+      if(shmctl(shmid, IPC_RMID,0) == -1){
+            perror("handler failed shm RMID: ");
+      }
+      /*semctl() performs the control operation specified by cmd (3rd argument) on the
+       System V semaphore set identified by semid, or on the semnum-th
+       semaphore of that set.  (The semaphores in a set are numbered
+       starting at 0.)*/
+      
+      /*IPC_RMID - Immediately remove the semaphore set, awakening all
+      processes blocked in semop(2) calls on the set (with an
+      error return and errno set to EIDRM).  The effective user
+      ID of the calling process must match the creator or owner
+      of the semaphore set, or the caller must be privileged.
+      The argument semnum is ignored.*/
+      for(i=0; i<NUMSEMIDS; i++){
+            if(semctl(semid[i], 0, IPC_RMID,0) == -1){
                 perror("handler failed sem RMID: ");
-          }
-        }
-        exit(4);
+            }
+      }
+      exit(4);
 }

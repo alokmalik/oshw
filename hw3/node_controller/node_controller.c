@@ -14,8 +14,8 @@
 char	*host_list[] = {"host list", "cs91515-1", "cs91515-2", "cs91515-3", "cs91515-4", "cs91515-5", "cs91515-6"}; 
 
 typedef struct thread_arg{
-int my_chan;
-int my_node_id;
+  int my_chan;
+  int my_node_id;
 }TH_ARG;
 
 int connected_ch[MAXNODE];
@@ -25,21 +25,21 @@ void *msg_maker(void *);
 
 int main(int argc, char *argv[])
 {
-        MSG     		msg;
-	MBUF			raw;
-	DONUT			donut;
-        int    	 		inet_sock, new_sock, out_index, my_role, node_cnt;
+  MSG     msg;
+	MBUF		raw;
+	DONUT		donut;
+  int    	inet_sock, new_sock, out_index, my_role, node_cnt;
 	int			my_chan, type_val, id_val, read_val, trigger;
-        int     		i, j, k, fromlen, nsigs, donut_num, node_id;
-	char    		*buffer_ptr;
-        struct sockaddr_in 	inet_telnum;
+  int     i, j, k, fromlen, nsigs, donut_num, node_id;
+	char    *buffer_ptr;
+  struct sockaddr_in 	inet_telnum;
 	struct hostent 		*heptr, *gethostbyname();
 	int			wild_card = INADDR_ANY;
 	struct sigaction 	sigstrc;
-	sigset_t		mask;
-        struct donut_ring       *shared_ring;
-        struct timeval          randtime;
-        unsigned short          xsub1[3];
+	sigset_t	mask;
+  struct donut_ring       *shared_ring;
+  struct timeval          randtime;
+  unsigned short          xsub1[3];
 	TH_ARG 			*th_arg;
 	pthread_t		thread_ids[MAXNODE];
 	int			connect_cnt = 0, th_index = 0;
@@ -48,29 +48,32 @@ int main(int argc, char *argv[])
 	my_role = atoi(argv[1]);
 	node_cnt = atoi(argv[2]);
 
-// Unless I'm node n of n nodes, I need to do at least 1 accept
-//
-	if(node_cnt - my_role > 0){
+  /*8socket() creates an endpoint for communication and returns a file
+  descriptor that refers to that endpoint.  The file descriptor
+  returned by a successful call will be the lowest-numbered file
+  descriptor not currently open for the process.*/
 
-          if((inet_sock=socket(AF_INET, SOCK_STREAM, 0)) == -1){
-            perror("inet_sock allocation failed: ");
-            exit(2);
-          }
-	
+// Unless I'm node n of n nodes, I need to do at least 1 accept
+
+	if(node_cnt - my_role > 0){
+    if((inet_sock=socket(AF_INET, SOCK_STREAM, 0)) == -1){
+      perror("inet_sock allocation failed: ");
+      exit(2);
+  }
 
 /***** byte copy the wild_card IP address INADDR_ANY into   *****/
 /***** IP address structure, along with port and family and *****/
 /***** use the structure to give yourself a connect address *****/
 
-	  bcopy(&wild_card, &inet_telnum.sin_addr, sizeof(int));
-	  inet_telnum.sin_family = AF_INET;
-	  inet_telnum.sin_port = htons( (u_short)PORT );
+  bcopy(&wild_card, &inet_telnum.sin_addr, sizeof(int));
+  inet_telnum.sin_family = AF_INET;
+  inet_telnum.sin_port = htons( (u_short)PORT );
 
-	  if(bind(inet_sock, (struct sockaddr *)&inet_telnum, 
-                            sizeof(struct sockaddr_in)) == -1){
-            perror("inet_sock bind failed: ");
-            exit(2);
-          }
+  if(bind(inet_sock, (struct sockaddr *)&inet_telnum, 
+    sizeof(struct sockaddr_in)) == -1){
+    perror("inet_sock bind failed: ");
+    exit(2);
+  }
 
 /***** allow client connect requests to arrive: call-wait 5 *****/
 
@@ -109,107 +112,108 @@ int main(int argc, char *argv[])
 	}
 	} // some accepts required
 
+  //4 cases
 	switch(my_role){
 		case 1:
 	  break; //all connected
-		case 2:
+		
+    case 2:
+      // need 1 connect, access hostname array for connect target
+	    if((heptr = gethostbyname( host_list[1] )) == NULL){
+        perror("gethostbyname failed: ");
+        exit(1);
+      }
+	    if((connected_ch[connect_cnt] = socket(AF_INET, SOCK_STREAM, 0)) == -1){
+        perror("connect channel allocation failed: ");
+        exit(2);
+      }
 
-// need 1 connect, access hostname array for connect target
-	  
-	   if((heptr = gethostbyname( host_list[1] )) == NULL){
-             perror("gethostbyname failed: ");
-             exit(1);
-           }
-	   if((connected_ch[connect_cnt] = socket(AF_INET, SOCK_STREAM, 0)) == -1){
-              perror("connect channel allocation failed: ");
-              exit(2);
-           }
+      bcopy(heptr->h_addr, &inet_telnum.sin_addr, heptr->h_length);
+      inet_telnum.sin_family = AF_INET;
+      inet_telnum.sin_port = htons( (u_short)PORT );
 
-           bcopy(heptr->h_addr, &inet_telnum.sin_addr, heptr->h_length);
-           inet_telnum.sin_family = AF_INET;
-           inet_telnum.sin_port = htons( (u_short)PORT );
+      // connect to target and spawn listener thread
 
-// connect to target and spawn listener thread
+	    if(connect(connected_ch[connect_cnt], (struct sockaddr *)&inet_telnum,
+        sizeof(struct sockaddr_in)) == -1){
+        perror("inet_sock connect failed: ");
+        exit(2);
+      }
+      th_arg = malloc(sizeof(TH_ARG));
+      th_arg->my_chan = connected_ch[connect_cnt];
+      th_arg->my_node_id = my_chan = my_role;
+      //printf("\nconnected from %s to %s\n", host_list[my_role], host_list[1]);
 
-	   if(connect(connected_ch[connect_cnt], (struct sockaddr *)&inet_telnum,
-                               sizeof(struct sockaddr_in)) == -1){
-             perror("inet_sock connect failed: ");
-             exit(2);
-           }
-           th_arg = malloc(sizeof(TH_ARG));
-           th_arg->my_chan = connected_ch[connect_cnt];
-           th_arg->my_node_id = my_chan = my_role;
-//	   printf("\nconnected from %s to %s\n", host_list[my_role], host_list[1]);
+	    if((errno = pthread_create(&thread_ids[th_index++], NULL,
+                chan_monitor, (void *)th_arg)) != 0){
+        perror("pthread_create channel monitor failed ");
+        exit(3);
+      }
+	    break; // accepts and 1 connect
+		
+    case 3:
 
-	   if((errno = pthread_create(&thread_ids[th_index++], NULL,
-                          chan_monitor, (void *)th_arg)) != 0){
-                 perror("pthread_create channel monitor failed ");
-                 exit(3);
-           }
-	   break; // accepts and 1 connect
-		case 3:
+      // need 2 connects, access hostname array for connect targets
 
-// need 2 connects, access hostname array for connect targets
+      if((heptr = gethostbyname( host_list[1] )) == NULL){
+        perror("gethostbyname failed: ");
+        exit(1);
+      }
+      if((connected_ch[connect_cnt] = socket(AF_INET, SOCK_STREAM, 0)) == -1){
+        perror("connect channel allocation failed: ");
+        exit(2);
+      }
 
-           if((heptr = gethostbyname( host_list[1] )) == NULL){
-             perror("gethostbyname failed: ");
-             exit(1);
-           }
-           if((connected_ch[connect_cnt] = socket(AF_INET, SOCK_STREAM, 0)) == -1){
-              perror("connect channel allocation failed: ");
-              exit(2);
-           }
+      bcopy(heptr->h_addr, &inet_telnum.sin_addr, heptr->h_length);
+      inet_telnum.sin_family = AF_INET;
+      inet_telnum.sin_port = htons( (u_short)PORT );
 
-           bcopy(heptr->h_addr, &inet_telnum.sin_addr, heptr->h_length);
-           inet_telnum.sin_family = AF_INET;
-           inet_telnum.sin_port = htons( (u_short)PORT );
+      if(connect(connected_ch[connect_cnt], (struct sockaddr *)&inet_telnum,
+                          sizeof(struct sockaddr_in)) == -1){
+        perror("inet_sock connect failed: ");
+        exit(2);
+      }
+      th_arg = malloc(sizeof(TH_ARG));
+      th_arg->my_chan = connected_ch[connect_cnt];
+      th_arg->my_node_id = my_role;
+  //	   printf("\nconnected from %s to %s\n", host_list[my_role], host_list[1]);
 
-           if(connect(connected_ch[connect_cnt], (struct sockaddr *)&inet_telnum,
-                               sizeof(struct sockaddr_in)) == -1){
-             perror("inet_sock connect failed: ");
-             exit(2);
-           }
-           th_arg = malloc(sizeof(TH_ARG));
-           th_arg->my_chan = connected_ch[connect_cnt];
-           th_arg->my_node_id = my_role;
-//	   printf("\nconnected from %s to %s\n", host_list[my_role], host_list[1]);
-
-           if((errno = pthread_create(&thread_ids[th_index++], NULL,
-                          chan_monitor, (void *)th_arg)) != 0){
-                 perror("pthread_create channel monitor failed ");
-                 exit(3);
-           }
+      if((errno = pthread_create(&thread_ids[th_index++], NULL,
+                    chan_monitor, (void *)th_arg)) != 0){
+            perror("pthread_create channel monitor failed ");
+            exit(3);
+      }
 	   ++connect_cnt;
 
-           if((heptr = gethostbyname( host_list[2] )) == NULL){
-             perror("gethostbyname failed: ");
-             exit(1);
-           }
-           if((connected_ch[connect_cnt] = socket(AF_INET, SOCK_STREAM, 0)) == -1){
-              perror("connect channel allocation failed: ");
-              exit(2);
-           }
+      if((heptr = gethostbyname( host_list[2] )) == NULL){
+        perror("gethostbyname failed: ");
+        exit(1);
+      }
+      if((connected_ch[connect_cnt] = socket(AF_INET, SOCK_STREAM, 0)) == -1){
+        perror("connect channel allocation failed: ");
+        exit(2);
+      }
 
-           bcopy(heptr->h_addr, &inet_telnum.sin_addr, heptr->h_length);
-           inet_telnum.sin_family = AF_INET;
-           inet_telnum.sin_port = htons( (u_short)PORT );
+      bcopy(heptr->h_addr, &inet_telnum.sin_addr, heptr->h_length);
+      inet_telnum.sin_family = AF_INET;
+      inet_telnum.sin_port = htons( (u_short)PORT );
 
-           if(connect(connected_ch[connect_cnt], (struct sockaddr *)&inet_telnum,
-                               sizeof(struct sockaddr_in)) == -1){
-             perror("inet_sock connect failed: ");
-             exit(2);
-           }
-           th_arg = malloc(sizeof(TH_ARG));
-           th_arg->my_chan = connected_ch[connect_cnt];
-           th_arg->my_node_id = my_role;
+      if(connect(connected_ch[connect_cnt], (struct sockaddr *)&inet_telnum,
+                          sizeof(struct sockaddr_in)) == -1){
+        perror("inet_sock connect failed: ");
+        exit(2);
+      }
+      th_arg = malloc(sizeof(TH_ARG));
+      th_arg->my_chan = connected_ch[connect_cnt];
+      th_arg->my_node_id = my_role;
 //	   printf("\nconnected from %s to %s\n", host_list[my_role], host_list[2]);
 
-           if((errno = pthread_create(&thread_ids[th_index++], NULL,
-                          chan_monitor, (void *)th_arg)) != 0){
-                 perror("pthread_create channel monitor failed ");
-                 exit(3);
-           }
-           break; // accepts and 2 connects
+      if((errno = pthread_create(&thread_ids[th_index++], NULL,
+                    chan_monitor, (void *)th_arg)) != 0){
+            perror("pthread_create channel monitor failed ");
+            exit(3);
+      }
+      break; // accepts and 2 connects
 		case 4:
 
 // need 3 connects, access hostname array for connect targets
@@ -295,14 +299,14 @@ int main(int argc, char *argv[])
            th_arg = malloc(sizeof(TH_ARG));
            th_arg->my_chan = connected_ch[connect_cnt];
            th_arg->my_node_id = my_role;
-//	   printf("\nconnected from %s to %s\n", host_list[my_role], host_list[3]);
+          //printf("\nconnected from %s to %s\n", host_list[my_role], host_list[3]);
 
-           if((errno = pthread_create(&thread_ids[th_index++], NULL,
+          if((errno = pthread_create(&thread_ids[th_index++], NULL,
                           chan_monitor, (void *)th_arg)) != 0){
                  perror("pthread_create channel monitor failed ");
                  exit(3);
-           }
-           break; //  3 connects and done
+          }
+          break; //  3 connects and done
 	 }
 
 	sleep(5);
@@ -316,12 +320,20 @@ int main(int argc, char *argv[])
 		pthread_join(thread_ids[i], NULL);
 	}
 
+  //after connection is constructed implement lamport's algorithm here
+  //Initialize Lamport's algorithm
+
+  LAMPORT lamport;
+  lamport.clock
+
+
 
 // Assuming 5 node example, main thread can exit here,
 // full connection is constructed
 
 	printf("\nnode controller finished, goodbye\n");
 }
+
 
 
 void*	chan_monitor(void *my_arg){

@@ -59,7 +59,39 @@ typedef union{
 	char buf[sizeof(MSG)];  // message as a raw byte buffer
 } MBUF;
 
+
 extern int errno;
+
+typedef struct {
+    int clock;
+    int node_id;
+} LAMPORT_REPLY;
+
+
+typedef struct {
+    int clock;
+    int node_id;
+    int previous;
+    int next;
+    LAMPORT_REPLY reply[4]; //number of nodes
+} LAMPORT_REQ;
+
+
+typedef struct {
+    int clock;
+    int node_id;
+    int queue_size;
+    LAMPORT_REQ request[20];
+    int first;
+} LAMPORT;
+
+
+
+
+
+
+
+
 
 #endif /* #ifndef __bmgr_h */
 

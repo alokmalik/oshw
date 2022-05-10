@@ -34,3 +34,4 @@ struct	donut_ring{
 int	p(int, int);
 int	v(int, int);
 int	semsetall(int, int, int);
+
